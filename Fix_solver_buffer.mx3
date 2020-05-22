@@ -1,0 +1,80 @@
+/*
+	This test is looking at how repeatable is a simulation
+    initialized with exactly the same conditions
+    Different results are obtained for each CYCLE while the same should be obtained
+    It looks like the RK45 Solver does not flush its memory when m is reset
+    20/05/2020 Dedalo Sanz-Hernandez, UMR CRNRS-Thales, Palaiseau, France
+*/
+
+Nx := 256
+Ny := 32
+Nz := 2
+
+setgridsize(Nx, Ny, Nz)
+setcellsize(4e-9, 4e-9, 4e-9)
+
+Msat = 1000e3
+Aex = 13e-12
+alpha = 0.1
+
+all_space := rect(1,1)
+hole := cylinder(70e-9, 100e-9).transl(150e-9,0,0).add(cylinder(80e-9, 100e-9).transl(-150e-9,0,0))
+setgeom(all_space.sub(hole))
+
+B_aux := 0.05
+B_ext = vector(B_aux,0,0)
+
+// Run the same simulation in a loop without flushing the memory buffer
+
+for p:=0; p<12; p++{
+    t = 0
+    m = Uniform(-1,0.2,0)
+    run(1e-9)
+    print(sprint("NO FLUSH /CYCLE: ",p, " /Time: ",t, " /Mx: ",m.comp(0).average()))
+}
+
+// Run the same loop but forcing a memory flush
+
+for p:=0; p<12; p++{
+    // Add the 4 lines below to force a flush of the solver buffer and recover repeatable results
+    m = Uniform(-1,0.2,0)
+    SetSolver(1)
+    steps(10)
+    SetSolver(5)
+    
+    //Run the same code asprevious loop
+    t = 0
+    m = Uniform(-1,0.2,0)
+    run(1e-9)
+    print(sprint("FLUSHING /CYCLE: ",p, " /Time: ",t, " /Mx: ",m.comp(0).average()))
+}
+
+/*
+Example output:
+
+//NO FLUSH /CYCLE: 0 /Time: 1e-09 /Mx: 0.44309516101646373
+//NO FLUSH /CYCLE: 1 /Time: 1e-09 /Mx: 0.4430851243371956
+//NO FLUSH /CYCLE: 2 /Time: 1e-09 /Mx: 0.44308531612087587
+//NO FLUSH /CYCLE: 3 /Time: 1e-09 /Mx: 0.4430850604093022
+//NO FLUSH /CYCLE: 4 /Time: 1e-09 /Mx: 0.4430850604093022
+//NO FLUSH /CYCLE: 5 /Time: 1e-09 /Mx: 0.44308525219298245
+//NO FLUSH /CYCLE: 6 /Time: 1e-09 /Mx: 0.443085188265089
+//NO FLUSH /CYCLE: 7 /Time: 1e-09 /Mx: 0.4430839736351139
+//NO FLUSH /CYCLE: 8 /Time: 1e-09 /Mx: 0.44308502844535547
+//NO FLUSH /CYCLE: 9 /Time: 1e-09 /Mx: 0.44308531612087587
+//NO FLUSH /CYCLE: 10 /Time: 1e-09 /Mx: 0.4430851563011423
+//NO FLUSH /CYCLE: 11 /Time: 1e-09 /Mx: 0.4430850604093022
+
+//FLUSHING /CYCLE: 0 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 1 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 2 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 3 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 4 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 5 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 6 /Time: 1e-09 /Mx: 0.44309522494435716
+//FLUSHING /CYCLE: 7 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 8 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 9 /Time: 1e-09 /Mx: 0.44309522494435716
+//FLUSHING /CYCLE: 10 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 11 /Time: 1e-09 /Mx: 0.44309525690830387
+*/

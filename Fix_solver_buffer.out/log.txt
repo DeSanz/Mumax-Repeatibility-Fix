@@ -1,0 +1,67 @@
+//mumax 3.10 windows_amd64 go1.10 (gc)
+//CUDA 10000 GeForce GTX 1080 Ti(11264MB) cc6.1 , using CC 61  PTX
+//(c) Arne Vansteenkiste, Dynamat LAB, Ghent University, Belgium
+//This is free software without any warranty. See license.txt
+//********************************************************************//
+//  If you use mumax in any work or publication,                      //
+//  we kindly ask you to cite the references in references.bib        //
+//********************************************************************//
+//output directory: Fix_solver_buffer.out/
+Nx := 256
+Ny := 32
+Nz := 2
+setgridsize(Nx, Ny, Nz)
+setcellsize(4e-9, 4e-9, 4e-9)
+Msat = 1000e3
+Aex = 13e-12
+alpha = 0.1
+all_space := rect(1, 1)
+hole := cylinder(70e-9, 100e-9).transl(150e-9, 0, 0).add(cylinder(80e-9, 100e-9).transl(-150e-9, 0, 0))
+setgeom(all_space.sub(hole))
+B_aux := 0.05
+B_ext = vector(B_aux, 0, 0)
+for p := 0; p < 12; p++ {
+	t = 0
+	m = Uniform(-1, 0.2, 0)
+	run(1e-9)
+	print(sprint("NO FLUSH /CYCLE: ", p, " /Time: ", t, " /Mx: ", m.comp(0).average()))
+}
+//NO FLUSH /CYCLE: 0 /Time: 1e-09 /Mx: 0.44309516101646373
+//NO FLUSH /CYCLE: 1 /Time: 1e-09 /Mx: 0.44309522494435716
+//NO FLUSH /CYCLE: 2 /Time: 1e-09 /Mx: 0.44309522494435716
+//NO FLUSH /CYCLE: 3 /Time: 1e-09 /Mx: 0.443095129052517
+//NO FLUSH /CYCLE: 4 /Time: 1e-09 /Mx: 0.4430950651246236
+//NO FLUSH /CYCLE: 5 /Time: 1e-09 /Mx: 0.4430950970885703
+//NO FLUSH /CYCLE: 6 /Time: 1e-09 /Mx: 0.4430950970885703
+//NO FLUSH /CYCLE: 7 /Time: 1e-09 /Mx: 0.4430950331606769
+//NO FLUSH /CYCLE: 8 /Time: 1e-09 /Mx: 0.4430950651246236
+//NO FLUSH /CYCLE: 9 /Time: 1e-09 /Mx: 0.4430950651246236
+//NO FLUSH /CYCLE: 10 /Time: 1e-09 /Mx: 0.4430950011967302
+//NO FLUSH /CYCLE: 11 /Time: 1e-09 /Mx: 0.4430950331606769
+for p := 0; p < 12; p++ {
+	m = Uniform(-1, 0.2, 0)
+	SetSolver(1)
+	steps(10)
+	SetSolver(5)
+	t = 0
+	m = Uniform(-1, 0.2, 0)
+	run(1e-9)
+	print(sprint("FLUSHING /CYCLE: ", p, " /Time: ", t, " /Mx: ", m.comp(0).average()))
+}
+//FLUSHING /CYCLE: 0 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 1 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 2 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 3 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 4 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 5 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 6 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 7 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 8 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 9 /Time: 1e-09 /Mx: 0.44309525690830387
+//FLUSHING /CYCLE: 10 /Time: 1e-09 /Mx: 0.4430952888722506
+//FLUSHING /CYCLE: 11 /Time: 1e-09 /Mx: 0.4430952888722506
+//********************************************************************//
+//Please cite the following references, relevant for your simulation: //
+//See bibtex file in output folder for justification.                 //
+//********************************************************************//
+//   * Vansteenkiste et al., AIP Adv. 4, 107133 (2014).
