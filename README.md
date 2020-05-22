@@ -8,4 +8,4 @@ In the second loop a refresh of the buffer is forced while the first loop runs a
 A compiled Windows executable with the fix included in (https://github.com/mumax/3/issues/260) is also available for reference.
 This executable prints "debug1" every time the solver deletes it memory.
 
-To run the reference test in Windows download the whole folder and execute rum.cmd
+To run the reference test in Windows download the whole folder and execute run.cmd
